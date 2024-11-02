@@ -1,5 +1,6 @@
 from rest_framework import mixins, status
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
@@ -19,6 +20,27 @@ class BorrowingViewSet(
     GenericViewSet,
 ):
     queryset = Borrowing.objects.all()
+    permission_classes = (IsAuthenticated,)
+
+    def get_queryset(self):
+        queryset = Borrowing.objects.all()
+
+        user = self.request.user
+        if not user.is_superuser:
+            queryset = Borrowing.objects.filter(user=self.request.user)
+
+        is_active = self.request.query_params.get("is_active")
+        user_id = self.request.query_params.get("user_id")
+
+        if is_active == "1":
+            queryset = queryset.filter(actual_return_date=None)
+        elif is_active == "0":
+            queryset = queryset.exclude(actual_return_date=None)
+
+        if user_id and user.is_superuser:
+            queryset = queryset.filter(user_id=int(user_id))
+
+        return queryset.distinct()
 
     def get_serializer_class(self):
         if self.action == "retrieve":
