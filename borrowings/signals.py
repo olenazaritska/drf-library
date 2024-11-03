@@ -9,7 +9,8 @@ from borrowings.tasks import send_notification
 def send_notification_on_borrowing_creation(sender, instance, created, **kwargs):
     if created:
         message = (
-            f"A new borrowing has been created on {instance.borrow_date}.\n"
+            f"A new borrowing has been created for {instance.book.title} "
+            f"on {instance.borrow_date}.\n"
             f"Expected return date is {instance.expected_return_date}."
         )
         send_notification.delay(message)
