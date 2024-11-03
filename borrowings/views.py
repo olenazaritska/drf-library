@@ -27,7 +27,7 @@ class BorrowingViewSet(
 
         user = self.request.user
         if not user.is_superuser:
-            queryset = Borrowing.objects.filter(user=self.request.user)
+            queryset = queryset.filter(user=self.request.user)
 
         is_active = self.request.query_params.get("is_active")
         user_id = self.request.query_params.get("user_id")
